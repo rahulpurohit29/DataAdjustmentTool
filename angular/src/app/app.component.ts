@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { FILE } from 'dns';
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
