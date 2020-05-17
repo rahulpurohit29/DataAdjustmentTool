@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "DataAdjustmentTool"
+    }
+  },
+  "defaultProject": "DataAdjustmentTool",
+  "cli": {
+    "analytics": "b6c077db-04e9-4a89-833b-ff933754005b"
+  }
 }
