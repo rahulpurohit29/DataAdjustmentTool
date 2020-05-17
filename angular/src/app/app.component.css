@@ -7,3 +7,50 @@
     border: 5px solid #00ff00;
     border-radius: 5%;
 } */
+ body {
+  background-color: lightblue;
+}
+
+h1 {
+  color: black;
+  text-align: center;
+  font-style: oblique;
+  font-family: "Times New Roman", cursive, sans-serif;
+  font-weight: bold;
+   text-decoration: underline;
+}
+	#change-input {
+  text-align: center;
+  color: red;
+}
+
+div {
+    align-items: center;
+    display: flex;
+    background: brown;
+    height: 200px;
+    border: 3px solid;
+}
+
+label {
+
+
+width : 400px;
+height : 17px;
+float : left;
+padding : 5px;
+color : white;
+
+
+}
+button {
+  background-color: white;
+  border: none;
+  color: black;
+  padding: 7px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: bold;
+}
