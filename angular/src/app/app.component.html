@@ -1,36 +1,22 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Home Page</title>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="app.component.css" type = "text/css">
-  </head>
-  
-  <h1>Data Adjustment Tool</h1>
-  
-  <body>
-    <div class="container">
-    <form action="">
-      <label for="change-input">Upload the CSV File for updating the database</label>
-      <input id ="change-input" type="file" id="change-input">
-      <p></p>
-      <label for="update">Update the database :</label>
-      <button id="update" type="submit" id="update">
-        Update
-      </button>
-      <p></p>
-      <label for="download">Download the file :</label>
-      <button id="download" type="button" id="download">
-        Download
-      </button>
-      <p></p>
-      <label for="Reset">Download the Database :</label>
-      <button id="Reset" type="reset" id="reset">
-        Reset
-      </button>
-    </form>
-    </div>
-    <router-outlet></router-outlet>
-  </body>
-</html>
+<h1>Data Adjustment Tool</h1>
+<div class="container">
+  <form action="">
+    <label for="change-input">Upload the CSV File for updating the database</label>
+    <input id ="change-input" type="file" id="change-input">
+    <p></p>
+    <label for="update">Update the database :</label>
+    <button id="update" type="submit" id="update">
+      Update
+    </button>
+    <p></p>
+    <label for="download">Download the file :</label>
+    <button id="download" type="button" id="download">
+      Download
+    </button>
+    <p></p>
+    <label for="Reset">Download the Database :</label>
+    <button id="Reset" type="reset" id="reset">
+      Reset
+    </button>
+  </form>
+ </div>
