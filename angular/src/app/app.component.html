@@ -3,9 +3,9 @@
 <div class="container">
   <form action="">
     <label for="change-input">Upload the CSV File for updating the database</label>
-    <input id ="change-input" type="file" id="change-input">
+    <input id ="change-input" type="file" id="change-input" (change)="FileSelect($event)">
     <br>
-    <button id="update" type="submit" id="update">
+    <button id="update" type="submit" id="update" (click)="onClick()">
       Update
     </button>
     <button id="download" type="button" id="download">
