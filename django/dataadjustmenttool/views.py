@@ -5,7 +5,7 @@ from models import Student_details
 
 @permission_required('admin.can_add_log_entry')
 def upload_csv(request):
-    template = "details_upload.html"
+    template = "app.component.html"
     prompt = {
         'order' : 'Order of csv should be SID, FIRST_NAME. MIDDLE_NAME, LAST_NAME, VLD_FROM, VLD_TILL'
     }
