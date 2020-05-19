@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from database.models import Student_details
+from models import Student_details
 
 
 def upload_csv(request):
