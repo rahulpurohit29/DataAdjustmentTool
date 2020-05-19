@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import url
+from dataadjustmenttools import views
+from views import upload_csv
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+     url(r'^upload/csv/$', views.upload_csv, name='upload_csv'),
+    url('admin/', admin.site.urls),
 ]
