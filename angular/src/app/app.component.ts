@@ -25,7 +25,7 @@ export class AppComponent {
     {
       let formdata=new FormData();
       formdata.append('File',this.file,this.file.name); //Creating the body of the POST request to be submitted
-      this.httpRequest.post('google.com',formdata); // Sending the POST request to the URL with the file and it's Details
+      this.httpRequest.post('http://127.0.0.1:8000/upload/csv/$',formdata); // Sending the POST request to the URL with the file and it's Details
     }
   }
 }
