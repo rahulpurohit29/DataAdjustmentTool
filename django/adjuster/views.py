@@ -11,11 +11,11 @@ def upload_csv(request):
     # if not GET, then proceed
 	try:
 		csv_file = request.FILES["csv_file"]
-		file_data = csv_file.read().decode("utf-8")		
+		file_data = csv_file.read().decode("utf-8")
 
 		lines = file_data.split("\n")
 		#loop over the lines and save them in db. If error , store as string and then display
-		for line in lines:						
+		for line in lines:
 			fields = line.split(",")
 			data_dict = {"SID": fields[0], "FIRST_NAME": fields[1], "MIDDLE_NAME": fields[2], "LAST_NAME": fields[3],
                      "VLD_FROM": fields[4], "VLD_TILL": fields[5]
@@ -25,11 +25,11 @@ def upload_csv(request):
 			try:
 				form = EventsForm(data_dict)
 				if form.is_valid():
-					form.save()					
+					form.save()
 				else:
-					logging.getLogger("error_logger").error(form.errors.as_json())												
+					logging.getLogger("error_logger").error(form.errors.as_json())
 			except Exception as e:
-				logging.getLogger("error_logger").error(repr(e))					
+				logging.getLogger("error_logger").error(repr(e))
 				pass
 
 	except Exception as e:
