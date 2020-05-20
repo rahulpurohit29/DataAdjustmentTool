@@ -13,13 +13,16 @@ export class AppComponent {
       this.file=<File>event.target.files[0]; //Selecting the file thath is to be uploaded.
     }
     else{
-      console.log("Please, Select a .csv file!!");
+      window.alert("Please, Select a .csv file!!");
+      document.getElementById('change-input').value=null;
+      return false;
     }
   }
   onClick(){
     if(this.file===null)
     {
-      console.log("Select a file first!!!");
+      window.alert("Select a file first!!!");
+      return false;
     }
     else
     {
