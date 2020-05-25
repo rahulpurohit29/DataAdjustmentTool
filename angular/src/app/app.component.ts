@@ -14,7 +14,8 @@ export class AppComponent {
     }
     else{
       window.alert("Please, Select a .csv file!!");
-      document.getElementById('change-input').value=null;
+      let changeinput=<HTMLInputElement>document.getElementById('change-input');
+      changeinput.value=null;
       return false;
     }
   }
