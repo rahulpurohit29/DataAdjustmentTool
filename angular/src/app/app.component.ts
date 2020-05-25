@@ -28,8 +28,19 @@ export class AppComponent {
     else
     {
       let formdata=new FormData();
-      formdata.append('File',this.file,this.file.name); //Creating the body of the POST request to be submitted
-      this.httpRequest.post('http://127.0.0.1:8000/upload/csv/$',formdata); // Sending the POST request to the URL with the file and it's Details
+      formdata.append('File',this.file); //Creating the body of the POST request to be submitted
+      this.httpRequest.post('http://127.0.0.1:8000/upload/csv/$',formdata).subscribe(
+        response=>{
+          console.log(response);
+        },
+        err=>{
+          console.log(err);
+        }     
+      ); // Sending the POST request to the URL with the file and it's Details
     }
+  }
+  Download(){
+    this.httpRequest.get('http://127.0.0.1:8000/upload/csv/$',null).subscribe(
+    );
   }
 }
