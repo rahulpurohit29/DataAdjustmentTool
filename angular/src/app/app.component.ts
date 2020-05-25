@@ -29,7 +29,7 @@ export class AppComponent {
     {
       let formdata=new FormData();
       formdata.append('File',this.file); //Creating the body of the POST request to be submitted
-      this.httpRequest.post('http://127.0.0.1:8000/upload/csv/$',formdata).subscribe(
+      this.httpRequest.post('http://127.0.0.1:8000/upload_csv',formdata).subscribe(
         response=>{
           console.log(response);
         },
@@ -40,7 +40,7 @@ export class AppComponent {
     }
   }
   Download(){
-    this.httpRequest.get('http://127.0.0.1:8000/upload/csv/$',null).subscribe(
+    this.httpRequest.get('http://127.0.0.1:8000/download_csv',null).subscribe(
     );
   }
 }
