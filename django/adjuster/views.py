@@ -1,6 +1,7 @@
 from django.views.generic import View
 from django.shortcuts import render
 from django.http import HttpResponse
+import logging
 from adjuster import models
 from subprocess import Popen, PIPE
 from hdfs3 import HDFileSystem
