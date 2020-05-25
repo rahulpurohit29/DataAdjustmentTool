@@ -8,7 +8,7 @@ from pyspark import SparkContext, SparkConf
 
 
 def upload_csv(request):
-    conf = SparkConf().setAppName(adjuster).setMaster("http://localhost:9000")
+    conf = SparkConf().setAppName("adjuster").setMaster("http://localhost:9000")
     sc = SparkContext(conf=conf)
     data = {}
     if "GET" == request.method:
