@@ -10,3 +10,4 @@ class Student_details(models.Model):
     valid_from = models.DateField(auto_now=False, auto_now_add=True)
     valid_to = models.DateField(auto_now=True, auto_now_add=False)
     latest= models.BooleanField()
+    version_no=models.IntegerField()

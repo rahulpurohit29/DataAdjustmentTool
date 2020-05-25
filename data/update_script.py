@@ -25,7 +25,8 @@ def add_entries(data,add_file):
             valid_from=str(date.today())
             valid_to='till date'
             latest=True
-            new_rows.append((sid,first_name,middle_name,last_name,valid_from,valid_to,latest))
+            version_no=1
+            new_rows.append((sid,first_name,middle_name,last_name,valid_from,valid_to,latest,version_no))
         if len(new_rows)>0:
             newRow = spark.createDataFrame(new_rows,schema)
             data = data.union(newRow)
@@ -62,8 +63,9 @@ def update_entries(data,update):
                 old_last_name=old_dict['last_name']
                 old_valid_from=old_dict['valid_from']
                 old_valid_to=str(date.today())
+                old_version_no=old_dict['version_no']
                 latest=False
-                new_rows.append((sid,old_first_name,old_middle_name,old_last_name,old_valid_from,old_valid_to,latest))
+                new_rows.append((sid,old_first_name,old_middle_name,old_last_name,old_valid_from,old_valid_to,latest,old_version_no))
 
                 new_first_name=update_dict['first_name']
                 new_middle_name=update_dict['middle_name']
@@ -71,7 +73,8 @@ def update_entries(data,update):
                 new_valid_from=str(date.today())
                 new_valid_to='till date'
                 latest=True
-                new_rows.append((sid,new_first_name,new_middle_name,new_last_name,new_valid_from,new_valid_to,latest))
+                new_version_no=old_version_no+1
+                new_rows.append((sid,new_first_name,new_middle_name,new_last_name,new_valid_from,new_valid_to,latest,new_version_no))
                 data=data.union(results).subtract(data.intersect(results))
                 if len(new_rows)>0:
                     newRow = spark.createDataFrame(new_rows,schema)
