@@ -20,7 +20,7 @@ def upload_csv(request):
         if student.is_valid():
             handle_uploaded_file(request.FILES['csv_file'])
             spark.read.format('csv').options(header='true', inferschema='true').load(csv_file.csv)
-            return HttpResponse("File uploaded successfully")
+            return HttpResponse({'message':"File uploaded successfully"},status=200)
 
     except Exception as e:
         logging.getLogger("error_logger").error("Unable to upload file. " + repr(e))

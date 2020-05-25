@@ -14,12 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import path
 from django.conf.urls import url,include
 from adjuster.views import upload_csv, download_csv
 
 urlpatterns = [
-    path('upload_csv', upload_csv),
-    path('download_csv', download_csv),
+    path('upload_csv', csrf_exempt(upload_csv)),
+    path('download_csv', csrf_exempt(download_csv)),
     url('admin/', admin.site.urls),
 ]

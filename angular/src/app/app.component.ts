@@ -28,7 +28,7 @@ export class AppComponent {
     else
     {
       let formdata=new FormData();
-      formdata.append('File',this.file); //Creating the body of the POST request to be submitted
+      formdata.append('csv_file',this.file); //Creating the body of the POST request to be submitted
       this.httpRequest.post('http://127.0.0.1:8000/upload_csv',formdata).subscribe(
         response=>{
           console.log(response);
