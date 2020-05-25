@@ -16,9 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url,include
-from adjuster.views import upload_csv
+from adjuster.views import upload_csv, download_csv
 
 urlpatterns = [
     url(r'^adjuster',include('adjuster.urls')),
+    path('upload_csv', views.upload_csv),
+    path('export/csv-database-write/', views.csv_database_write, name='csv_database_write'),
     url('admin/', admin.site.urls),
 ]
