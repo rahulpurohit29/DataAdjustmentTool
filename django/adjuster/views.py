@@ -1,6 +1,6 @@
 from django.views.generic import View
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from django.contrib import messages
 import logging
 import os
@@ -45,16 +45,16 @@ def upload_csv(request):
         # data=spark.read.csv(csv_files,inferSchema=True,header=True)
         # data.show()
         print("file read")
-        return HttpResponse("File uploaded successfully")
+        return JsonResponse({'message':'File uploaded successfully'},status=200)
         print("test 1")
-        return HttpResponse("Not a valid csv file.")
+        return JsonResponse({'message':'File uploaded is not a '},status=415)
     except Exception as e:
         os.remove(file_url)
         print("test")
         logging.getLogger("error_logger").error("Unable to upload file. " + repr(e))
         messages.error(request, "Unable to upload file. " + repr(e))
 
-    return HttpResponse({'message':"Error in uploading file."},status=500)
+    return JsonResponse({'message':"Error in uploading file."},status=500)
 
 
 def download_csv(request):

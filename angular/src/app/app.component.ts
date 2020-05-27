@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
+import  { saveAs } from 'file-saver';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -31,16 +32,27 @@ export class AppComponent {
       formdata.append('csv_file',this.file); //Creating the body of the POST request to be submitted
       this.httpRequest.post('http://127.0.0.1:8000/upload_csv',formdata).subscribe(
         response=>{
-          console.log(response);
+          console.log("Success");
+          alert("Successfully Updated!");
         },
         err=>{
-          console.log(err);
+          console.log("Error");
+          alert(err['message']);
         }
       ); // Sending the POST request to the URL with the file and it's Details
     }
   }
   Download(){
-    this.httpRequest.get('http://127.0.0.1:8000/download_csv',null).subscribe(
+    this.httpRequest.get('http://127.0.0.1:8000/download_csv',{responseType:'blob'}).subscribe(
+      blob=>{
+          saveAs(blob,'DATA.csv');
+          console.log("Success");
+          alert("File will be downloaded as DATA.csv");
+      },
+      err=>{
+        console.log("Error");
+        alert(err['message']);
+      }
     );
   }
 }
