@@ -35,7 +35,7 @@ export class AppComponent {
         },
         err=>{
           console.log(err);
-        }     
+        }
       ); // Sending the POST request to the URL with the file and it's Details
     }
   }

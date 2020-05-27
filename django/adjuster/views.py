@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib import messages
 import logging
+import os
 from adjuster import models
 from subprocess import Popen, PIPE
 from hdfs3 import HDFileSystem
@@ -11,8 +12,16 @@ from adjuster.forms import StudentForm
 import findspark
 findspark.init("C:\\spark-2.4.5-bin-hadoop2.7")
 import pyspark
+import tempfile
+import subprocess
 from pyspark.sql import SparkSession
-spark=SparkSession.builder.appName('adjuster').getOrCreate()
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+import hdfs3
+from hdfs3 import HDFileSystem
+# spark=SparkSession.builder.appName('adjuster').getOrCreate()
+
+
 
 def upload_csv(request):
     # sc = SparkContext(conf=conf)
@@ -20,20 +29,28 @@ def upload_csv(request):
     if "GET" == request.method:
         return HttpResponse({'message':"Invalid request."},status=500)
 
-    # if not GET, then proceed
+    #if not GET, then proceed
     try:
-        csv_file = StudentForm(request.POST, request.FILES)
         # file_data = csv_file.read().decode("utf-8")
         csv_files=request.FILES['csv_file']
-        print(csv_file)
-        if csv_file.is_valid():
+        fs = FileSystemStorage(location='C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data') #defaults to   MEDIA_ROOT
+        filename = fs.save(csv_files.name, csv_files)
+        file_url='C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+fs.url(filename)
+        print(file_url)
+        # put = subprocess.Popen(["hadoop", "fs", "-put",file_url,'hdfs://hadoop1.example.com:9000'], stdin=PIPE, bufsize=-1)
+        # put.communicate()
+        # hdfs=HDFileSystem(host='hdfs://hadoop1.example.com',port=9000)
+        # print(hdfs)
             # handle_uploaded_file(request.FILES['csv_file'])
-            spark.read.format('csv').options(header='true', inferschema='true').load(csv_file.csv)
-            print("file read")
-            return HttpResponse({'message':"File uploaded successfully"},status=200)
-        else:
-            return HttpResponse({'message':"Not a valid csv file."},status=500)
+        # data=spark.read.csv(csv_files,inferSchema=True,header=True)
+        # data.show()
+        print("file read")
+        return HttpResponse("File uploaded successfully")
+        print("test 1")
+        return HttpResponse("Not a valid csv file.")
     except Exception as e:
+        os.remove(file_url)
+        print("test")
         logging.getLogger("error_logger").error("Unable to upload file. " + repr(e))
         messages.error(request, "Unable to upload file. " + repr(e))
 
