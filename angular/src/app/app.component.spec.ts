@@ -4,9 +4,12 @@ import { AppComponent } from './app.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
-
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { not } from '@angular/compiler/src/output/output_ast';
+
 describe('AppComponent', () => {
+  let app: AppComponent;
+  let fixture;
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -17,7 +20,10 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent
       ],
-    }).compileComponents();
+    }).compileComponents().then( () => {
+      fixture = TestBed.createComponent(AppComponent);
+      app = fixture.componentInstance;
+  });
   }));
 
   it('should create the app', () => {
@@ -25,6 +31,11 @@ describe('AppComponent', () => {
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
   });
+  it(`should have class 'container'`, ()=>{
+    const DivElement=<HTMLDivElement>document.getElementsByClassName('container')[0];
+    expect(DivElement).toBeDefined();
+  }
+  );
   it(`should have text 'DATA ADJUSTMENT TOOL'`, ()=>{
     const HeadingElement=<HTMLHeadingElement>document.getElementById('heading');
     expect(HeadingElement.textContent).toBe("DATA ADJUSTMENT TOOL");
@@ -32,7 +43,27 @@ describe('AppComponent', () => {
   );
   it(`should have label 'CSV update'`, ()=>{
     const LabelElement=<HTMLLabelElement>document.getElementById("label");
-    expect(LabelElement.innerText).toBe("CSV update");
+    expect(LabelElement.textContent).toBe("CSV update");
   }
   );
+  it(`should have called onClick() function on click of update`, ()=>{
+    let spyupdate=spyOn(app,'onClick').and.callThrough();
+    expect(spyupdate).not.toHaveBeenCalled();
+    document.getElementById('update').click();
+    expect(spyupdate).toHaveBeenCalled();
+  });
+  it(`should have called Download() function on click of Download`, ()=>{
+    let spydownload=spyOn(app,'Download').and.callThrough();
+    expect(spydownload).not.toHaveBeenCalled();
+    document.getElementById('download').click();
+    expect(spydownload).toHaveBeenCalled();
+  });
+  it(`should have reset by click on reset`, ()=>{
+    // let spydownload=spyOn(app,'Download').and.callThrough();
+    // expect(spydownload).not.toHaveBeenCalled();
+    document.getElementById('reset').click();
+    // expect(spydownload).toHaveBeenCalled();
+    let changeinput=<HTMLInputElement>document.getElementById('change-input');
+    expect(changeinput.value).toEqual('');
+  });
 });
