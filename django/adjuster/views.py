@@ -20,6 +20,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import hdfs3
 from hdfs3 import HDFileSystem
+<<<<<<< HEAD
 from datetime import date
 spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
@@ -65,7 +66,15 @@ def update_csv(request):
         messages.error(request, "Unable to upload file. " + repr(e))
 
     return JsonResponse({'message':"Error in uploading file."},status=500)
+=======
+from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import ContainerClient
+# spark=SparkSession.builder.appName('adjuster').getOrCreate()
+>>>>>>> b3efa1b79c5d22275ac279c641b2c888b0d19389
 
+container_client = ContainerClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container")
+
+container_client.create_container()
 
 
 def add_csv(request):
@@ -116,7 +125,7 @@ def download_csv(request):
     # details = data.objects.all()
     # # Create the HttpResponse object with the appropriate CSV header.
 
-    response = HttpResponse(content_type='text/csv')
+    #response = HttpResponse(content_type='text/csv')
     # response['Content-Disposition'] = 'attachment; filename="csv_database_write.csv" '
 
     # writer = csv.writer(response)
@@ -124,7 +133,20 @@ def download_csv(request):
     # for detail in details:
     #     writer.writerow([detail.stud_id, detail.first_name, detail.middle_name, detail.last_name, detail.valid_from,
     #                      detail.valid_to])
-    return response
+    #return response
+    
+    hdfs = HDFileSystem(host='hdfs://hadoop1.example.com', port=9000)
+    # get(hdfs_path, local_path, blocksize=65536) copy file to local
+
+    HDFileSystem.get('hdfs://hadoop1.example.com:9000', 'C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data',
+        blocksize=65536)
+    blob = BlobClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container",
+                                             blob_name="my-blob")
+
+    with open("C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\data.csv", "rb") as final_csv:
+        await blob.upload_blob(final_csv)
+
+    return JsonResponse(blob)
 
 
 def add_entries(data,add_file):
