@@ -59,11 +59,13 @@ describe('AppComponent', () => {
     expect(spydownload).toHaveBeenCalled();
   });
   it(`should have reset by click on reset`, ()=>{
-    // let spydownload=spyOn(app,'Download').and.callThrough();
-    // expect(spydownload).not.toHaveBeenCalled();
     document.getElementById('reset').click();
-    // expect(spydownload).toHaveBeenCalled();
     let changeinput=<HTMLInputElement>document.getElementById('change-input');
     expect(changeinput.value).toEqual('');
   });
+  it(`should have CSS`,()=>{
+      const styling=getComputedStyle(document.getElementById('change-input'));
+      expect(styling).not.toEqual('');
+  }
+  );
 });
