@@ -23,7 +23,7 @@ from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import ContainerClient
 # spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
-container_client = ContainerClient.from_connection_string(conn_str="<connection_string>", container_name="my-container")
+container_client = ContainerClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container")
 
 container_client.create_container()
 
@@ -84,8 +84,8 @@ def download_csv(request):
 
     HDFileSystem.get('hdfs://hadoop1.example.com:9000', 'C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data',
         blocksize=65536)
-    blob = BlobClient.from_connection_string(conn_str="<connection_string>", container_name="my_container",
-                                             blob_name="my_blob")
+    blob = BlobClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container",
+                                             blob_name="my-blob")
 
     with open("C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\data.csv", "rb") as final_csv:
         await blob.upload_blob(final_csv)
