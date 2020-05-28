@@ -20,7 +20,7 @@ from django.conf.urls import url,include
 from adjuster.views import update_csv,add_csv,download_csv
 
 urlpatterns = [
-    path('upload_csv', csrf_exempt(update_csv)),
+    path('update_csv', csrf_exempt(update_csv)),
     path('add_csv',csrf_exempt(add_csv)),
     path('download_csv', csrf_exempt(download_csv)),
     url('admin/', admin.site.urls),

@@ -42,6 +42,28 @@ export class AppComponent {
       ); // Sending the POST request to the URL with the file and it's Details
     }
   }
+  onAdd(){
+    if(this.file===null)
+    {
+      window.alert("Select a file first!!!");
+      return false;
+    }
+    else
+    {
+      let formdata=new FormData();
+      formdata.append('csv_file',this.file); //Creating the body of the POST request to be submitted
+      this.httpRequest.post('http://127.0.0.1:8000/add_csv',formdata).subscribe(
+        response=>{
+          console.log("Success");
+          alert("Successfully Added!");
+        },
+        err=>{
+          console.log("Error");
+          alert(err['message']);
+        }
+      ); // Sending the POST request to the URL with the file and it's Details
+    }
+  }
   Download(){
     this.httpRequest.get('http://127.0.0.1:8000/download_csv',{responseType:'blob'}).subscribe(
       blob=>{

@@ -20,7 +20,6 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import hdfs3
 from hdfs3 import HDFileSystem
-<<<<<<< HEAD
 from datetime import date
 spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
@@ -66,11 +65,9 @@ def update_csv(request):
         messages.error(request, "Unable to upload file. " + repr(e))
 
     return JsonResponse({'message':"Error in uploading file."},status=500)
-=======
 from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import ContainerClient
 # spark=SparkSession.builder.appName('adjuster').getOrCreate()
->>>>>>> b3efa1b79c5d22275ac279c641b2c888b0d19389
 
 container_client = ContainerClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container")
 

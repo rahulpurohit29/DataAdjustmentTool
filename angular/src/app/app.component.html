@@ -4,13 +4,16 @@
     <label id="label" for="change-input">CSV update</label>
     <input id ="change-input" type="file" id="change-input" (change)="FileSelect($event)">
     <br>
-    <button id="update" type="button" id="update" (click)="onClick()">
+    <button id="update" type="button" (click)="onClick()">
       Update
     </button>
-    <button id="download" type="button" id="download" (click)="Download()">
+    <button id="add" type="button" (click)="onAdd()">
+      Add
+    </button>
+    <button id="download" type="button" (click)="Download()">
       Download
     </button>
-    <button id="Reset" type="reset" id="reset">
+    <button id="Reset" type="reset">
       Reset
     </button>
   </form>

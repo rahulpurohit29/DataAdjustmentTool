@@ -52,6 +52,12 @@ describe('AppComponent', () => {
     document.getElementById('update').click();
     expect(spyupdate).toHaveBeenCalled();
   });
+  it(`should have called onAdd() function on click of add`, ()=>{
+    let spyadd=spyOn(app,'onAdd').and.callThrough();
+    expect(spyadd).not.toHaveBeenCalled();
+    document.getElementById('add').click();
+    expect(spyadd).toHaveBeenCalled();
+  });
   it(`should have called Download() function on click of Download`, ()=>{
     let spydownload=spyOn(app,'Download').and.callThrough();
     expect(spydownload).not.toHaveBeenCalled();
@@ -59,7 +65,7 @@ describe('AppComponent', () => {
     expect(spydownload).toHaveBeenCalled();
   });
   it(`should have reset by click on reset`, ()=>{
-    document.getElementById('reset').click();
+    document.getElementById('Reset').click();
     let changeinput=<HTMLInputElement>document.getElementById('change-input');
     expect(changeinput.value).toEqual('');
   });
