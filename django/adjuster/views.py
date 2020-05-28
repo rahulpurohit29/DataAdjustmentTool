@@ -19,8 +19,13 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import hdfs3
 from hdfs3 import HDFileSystem
+from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import ContainerClient
 # spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
+container_client = ContainerClient.from_connection_string(conn_str="<connection_string>", container_name="my-container")
+
+container_client.create_container()
 
 
 def upload_csv(request):
@@ -64,7 +69,7 @@ def download_csv(request):
     # details = data.objects.all()
     # # Create the HttpResponse object with the appropriate CSV header.
 
-    response = HttpResponse(content_type='text/csv')
+    #response = HttpResponse(content_type='text/csv')
     # response['Content-Disposition'] = 'attachment; filename="csv_database_write.csv" '
 
     # writer = csv.writer(response)
@@ -72,7 +77,20 @@ def download_csv(request):
     # for detail in details:
     #     writer.writerow([detail.stud_id, detail.first_name, detail.middle_name, detail.last_name, detail.valid_from,
     #                      detail.valid_to])
-    return response
+    #return response
+    
+    hdfs = HDFileSystem(host='hdfs://hadoop1.example.com', port=9000)
+    # get(hdfs_path, local_path, blocksize=65536) copy file to local
+
+    HDFileSystem.get('hdfs://hadoop1.example.com:9000', 'C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data',
+        blocksize=65536)
+    blob = BlobClient.from_connection_string(conn_str="<connection_string>", container_name="my_container",
+                                             blob_name="my_blob")
+
+    with open("C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\data.csv", "rb") as final_csv:
+        await blob.upload_blob(final_csv)
+
+    return JsonResponse(blob)
 
 
 def add_entries(data,add_file):
