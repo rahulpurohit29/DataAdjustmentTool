@@ -4,6 +4,7 @@ from django.http import HttpResponse,JsonResponse
 from django.contrib import messages
 import logging
 import os
+import glob
 from adjuster import models
 from subprocess import Popen, PIPE
 from hdfs3 import HDFileSystem
@@ -19,24 +20,32 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 import hdfs3
 from hdfs3 import HDFileSystem
-# spark=SparkSession.builder.appName('adjuster').getOrCreate()
+from datetime import date
+spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+data_dir=os.path.join(BASE_DIR,"data")
 
-
-def upload_csv(request):
+def update_csv(request):
     # sc = SparkContext(conf=conf)
-    data = {}
+
     if "GET" == request.method:
         return HttpResponse({'message':"Invalid request."},status=500)
 
     #if not GET, then proceed
     try:
         # file_data = csv_file.read().decode("utf-8")
+        list_of_files = glob.glob(data_dir+'\*') # * means all if need specific format then *.csv
+        latest_file = max(list_of_files, key=os.path.getctime)
+        print(latest_file)
         csv_files=request.FILES['csv_file']
-        fs = FileSystemStorage(location='C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data') #defaults to   MEDIA_ROOT
+        fs = FileSystemStorage(location=data_dir) #defaults to   MEDIA_ROOT
         filename = fs.save(csv_files.name, csv_files)
-        file_url='C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+fs.url(filename)
+        file_url=data_dir+'/'+fs.url(filename)
         print(file_url)
+        data=update_entries(latest_file,file_url)
+        data.toPandas().to_csv(data_dir+'/'+str(date.today())+".csv",header=True,index=False)
+        #data.coalesce(1).write.option('header','true').option("sep",",").mode("overwrite").csv('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'.csv')
         # put = subprocess.Popen(["hadoop", "fs", "-put",file_url,'hdfs://hadoop1.example.com:9000'], stdin=PIPE, bufsize=-1)
         # put.communicate()
         # hdfs=HDFileSystem(host='hdfs://hadoop1.example.com',port=9000)
@@ -45,6 +54,49 @@ def upload_csv(request):
         # data=spark.read.csv(csv_files,inferSchema=True,header=True)
         # data.show()
         print("file read")
+        os.remove(file_url)
+        return JsonResponse({'message':'File uploaded successfully'},status=200)
+        print("test 1")
+        return JsonResponse({'message':'File uploaded is not a '},status=415)
+    except Exception as e:
+        os.remove(file_url)
+        print("test")
+        logging.getLogger("error_logger").error("Unable to upload file. " + repr(e))
+        messages.error(request, "Unable to upload file. " + repr(e))
+
+    return JsonResponse({'message':"Error in uploading file."},status=500)
+
+
+
+def add_csv(request):
+    # sc = SparkContext(conf=conf)
+
+    if "GET" == request.method:
+        return HttpResponse({'message':"Invalid request."},status=500)
+
+    #if not GET, then proceed
+    try:
+        # file_data = csv_file.read().decode("utf-8")
+        list_of_files = glob.glob(data_dir+'\*') # * means all if need specific format then *.csv
+        latest_file = max(list_of_files, key=os.path.getctime)
+        print(latest_file)
+        csv_files=request.FILES['csv_file']
+        fs = FileSystemStorage(location=data_dir) #defaults to   MEDIA_ROOT
+        filename = fs.save(csv_files.name, csv_files)
+        file_url=data_dir+'/'+fs.url(filename)
+        print(file_url)
+        data=add_entries(latest_file,file_url)
+        data.toPandas().to_csv(data_dir+'/'+str(date.today())+".csv",header=True,index=False)
+        #data.coalesce(1).write.option('header','true').option("sep",",").mode("overwrite").csv('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'.csv')
+        # put = subprocess.Popen(["hadoop", "fs", "-put",file_url,'hdfs://hadoop1.example.com:9000'], stdin=PIPE, bufsize=-1)
+        # put.communicate()
+        # hdfs=HDFileSystem(host='hdfs://hadoop1.example.com',port=9000)
+        # print(hdfs)
+            # handle_uploaded_file(request.FILES['csv_file'])
+        # data=spark.read.csv(csv_files,inferSchema=True,header=True)
+        # data.show()
+        print("file read")
+        os.remove(file_url)
         return JsonResponse({'message':'File uploaded successfully'},status=200)
         print("test 1")
         return JsonResponse({'message':'File uploaded is not a '},status=415)
@@ -100,6 +152,13 @@ def add_entries(data,add_file):
         if len(new_rows)>0:
             newRow = spark.createDataFrame(new_rows,schema)
             data = data.union(newRow)
+    data.createOrReplaceTempView('table')
+    data=spark.sql("SELECT * FROM table ORDER BY stud_id")
+    # print(ids)
+    # for id in ids:
+    #     results=spark.sql(f'SELECT * FROM table WHERE stud_id={id}')
+    #     results.show()
+        #data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'_output.csv')
     return data
 
 def del_entries(data,ids):
@@ -113,6 +172,7 @@ def update_entries(data,update):
     schema=data.schema
     data.createOrReplaceTempView('table')
     update=spark.read.csv(update,inferSchema=True,header=True)
+    ids=[]
     if "stud_id" in update.columns and "first_name" in update.columns and "middle_name" in update.columns and "last_name" in update.columns:
         update=update.collect()
         for i in range(0,len(update)):
@@ -120,8 +180,9 @@ def update_entries(data,update):
             new_rows=[]
             update_dict=update[i].asDict()
             sid=update_dict['stud_id']
+            ids.append(sid)
             results=spark.sql(f'select * from table where stud_id={sid} and latest=True')
-            results.show()
+            #results.show()
             if len(results.collect())>0:
                 old_dict=results.collect()[0].asDict()
                 old_first_name=old_dict['first_name']
@@ -144,6 +205,13 @@ def update_entries(data,update):
                 data=data.union(results).subtract(data.intersect(results))
                 if len(new_rows)>0:
                     newRow = spark.createDataFrame(new_rows,schema)
-                    newRow.show()
+                    #newRow.show()
                     data = data.union(newRow)
+    data.createOrReplaceTempView('table')
+    data=spark.sql("SELECT * FROM table ORDER BY stud_id")
+    # print(ids)
+    # for id in ids:
+    #     results=spark.sql(f'SELECT * FROM table WHERE stud_id={id}')
+    #     results.show()
+        #data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'_output.csv')
     return data
