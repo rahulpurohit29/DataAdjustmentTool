@@ -21,6 +21,8 @@ from django.core.files.storage import FileSystemStorage
 import hdfs3
 from hdfs3 import HDFileSystem
 from datetime import date
+from azure.storage.blob import BlobServiceClient
+
 spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -65,13 +67,13 @@ def update_csv(request):
         messages.error(request, "Unable to upload file. " + repr(e))
 
     return JsonResponse({'message':"Error in uploading file."},status=500)
-from azure.storage.blob import BlobServiceClient
-from azure.storage.blob import ContainerClient
+#from azure.storage.blob import BlobServiceClient
+#from azure.storage.blob import ContainerClient
 # spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
-container_client = ContainerClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container")
+#container_client = ContainerClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container")
 
-container_client.create_container()
+#container_client.create_container()
 
 
 def add_csv(request):
