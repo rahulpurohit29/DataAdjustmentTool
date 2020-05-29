@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
-import  { saveAs } from 'file-saver';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  file: File= null;
+  file: File = null;
+  jsondata=null;
   constructor(private httpRequest: HttpClient){}  //Constructor to be used to send the HTTTP Request
   FileSelect(event){
     if(event.target.files[0].name.substr( event.target.files[0].name.lastIndexOf('.') + 1)==="csv"){
@@ -65,15 +65,21 @@ export class AppComponent {
     }
   }
   Download(){
-    this.httpRequest.get('http://127.0.0.1:8000/download_csv',{responseType:'blob'}).subscribe(
-      blob=>{
-          saveAs(blob,'DATA.csv');
+    this.httpRequest.get('http://127.0.0.1:8000/download_csv').subscribe(
+      response=>{
           console.log("Success");
-          alert("File will be downloaded as DATA.csv");
+          this.jsondata=response;
+          console.log(typeof(this.jsondata));
+          for(let key in this.jsondata)
+          {
+            if(this.jsondata.hasOwnProperty(key)){
+              console.log(this.jsondata[key].first_name);
+            }
+          }
       },
       err=>{
         console.log("Error");
-        alert(err['message']);
+        alert("Unable to get data from the Server.");
       }
     );
   }

@@ -1,0 +1,12 @@
+stud_id,first_name,middle_name,last_name,valid_from,valid_to,latest,version_no
+1,,,,5/19/2020,till date,TRUE,1
+2,Merrie,Iacobetto,Handrick,2/4/2020,till date,TRUE,1
+3,Tracy,Krzysztof,Stratiff,7/20/2019,till date,TRUE,1
+4,Emilio,Tander,Spring,10/18/2019,till date,TRUE,1
+5,Emyle,Bresnahan,Cockton,1/31/2020,till date,TRUE,1
+6,Benji,Maguire,Snalham,7/26/2019,till date,TRUE,1
+7,Wilhelmine,Shakesby,Josifovic,1/25/2020,till date,TRUE,1
+8,Estella,Speere,Waldock,9/5/2019,till date,TRUE,1
+9,Jen,Swallwell,Harvatt,9/9/2019,till date,TRUE,1
+10,Rabbi,Hurd,Barwis,12/11/2019,till date,TRUE,1
+11,Winfield,Pengilly,Jeremaes,2/16/2020,till date,TRUE,1

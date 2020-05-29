@@ -22,7 +22,8 @@ import hdfs3
 from hdfs3 import HDFileSystem
 from datetime import date
 from azure.storage.blob import BlobServiceClient
-
+import json
+import csv
 spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -123,35 +124,13 @@ def download_csv(request):
     # # getting data from hdfs
     # details = data.objects.all()
     # # Create the HttpResponse object with the appropriate CSV header.
-
-    #response = HttpResponse(content_type='text/csv')
-    # response['Content-Disposition'] = 'attachment; filename="csv_database_write.csv" '
-
-    # writer = csv.writer(response)
-    # writer.writerow(['stud_id', 'first_name', 'middle_name', 'last_name', 'valid_from', 'valid_to'])
-    # for detail in details:
-    #     writer.writerow([detail.stud_id, detail.first_name, detail.middle_name, detail.last_name, detail.valid_from,
-    #                      detail.valid_to])
-    #return response
-    
-    hdfs = HDFileSystem(host='hdfs://hadoop1.example.com', port=9000)
-    # get(hdfs_path, local_path, blocksize=65536) copy file to local
-
-    HDFileSystem.get('hdfs://hadoop1.example.com:9000', 'C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data',
-        blocksize=65536)
-                                                          
-    connection_string = "DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"
-    service = BlobServiceClient.from_connection_string(conn_str=connection_string)
-    container_client = service.get_container_client("my-container") 
-                                                          
-    blob_client = service.get_blob_client(container="my-container", blob="local_file_name")
-
-    with open("C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\data.csv", "rb") as final_csv:
-    #with open(r'C:\Users\DELL\Desktop\test_file.txt', "rb") as final_csv:
-       blob_client.upload_blob(final_csv)
-
-    return JsonResponse(blob_client)
-
+    fs=open('data.csv')
+    csvfile=csv.DictReader(fs)
+    data={}
+    for record in csvfile:
+        id=record['stud_id']  #Please look a way in which we can get key from the first element in csv file
+        data[id]=record
+    return JsonResponse(data,status=200)
 
 def add_entries(data,add_file):
     new_rows=[]

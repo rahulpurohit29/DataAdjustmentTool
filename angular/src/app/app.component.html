@@ -18,3 +18,16 @@
     </button>
   </form>
 </div>
+<table *ngIf="jsondata">
+  <thead>
+    <tr>
+      <th>Student-ID</th>
+    </tr>
+    
+  </thead>
+  <tbody>
+    <tr *ngFor="let record of jsondata|keyvalue">
+      <td>{{record.stud_id}}</td>
+    </tr>
+  </tbody>
+</table>
