@@ -137,13 +137,18 @@ def download_csv(request):
 
     HDFileSystem.get('hdfs://hadoop1.example.com:9000', 'C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data',
         blocksize=65536)
-    blob = BlobClient.from_connection_string(conn_str="DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"", container_name="my-container",
-                                             blob_name="my-blob")
+                                                          
+    connection_string = "DefaultEndpointsProtocol=https;AccountName=neha6767j;AccountKey=aJAQ0faLityhaj4RVNQ8UkQ1QiZmjwFHON09LwI+1t76dclfMV4ydwYe/ovTTvZfsc9Y4Isu3XoN9+A2RQK/0Q==;EndpointSuffix=core.windows.net"
+    service = BlobServiceClient.from_connection_string(conn_str=connection_string)
+    container_client = service.get_container_client("my-container") 
+                                                          
+    blob_client = service.get_blob_client(container="my-container", blob="local_file_name")
 
     with open("C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\data.csv", "rb") as final_csv:
-        await blob.upload_blob(final_csv)
+    #with open(r'C:\Users\DELL\Desktop\test_file.txt', "rb") as final_csv:
+       blob_client.upload_blob(final_csv)
 
-    return JsonResponse(blob)
+    return JsonResponse(blob_client)
 
 
 def add_entries(data,add_file):
