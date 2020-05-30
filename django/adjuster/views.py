@@ -128,11 +128,12 @@ def download_csv(request):
     # # Create the HttpResponse object with the appropriate CSV header.
     list_of_files = glob.glob(data_dir+'\*') # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime)
-    df=spark.read.csv(latest_file,infderSchema=True,header=True)
+    print(latest_file)
+    df=spark.read.csv(latest_file,inferSchema=True,header=True)
     df.createOrReplaceTempView('updated')
     data={}
     for id in updated_ids:
-        data[id]=spark.sql(f"SELECT * FROM updated WHERE stud_id={sid} and latest=true").collect()[0]
+        data[id]=spark.sql(f"SELECT * FROM updated WHERE stud_id={sid} and latest=true").collect()[0].asDict()
     return JsonResponse(data,status=200)
 
 def add_entries(data,add_file):
