@@ -36,7 +36,8 @@ stud_id,first_name,middle_name,last_name,valid_from,valid_to,latest,version_no
 33,Cecilia,Grzegorzewski,Sebley,9/21/2019,till date,True,1
 34,Daile,Epton,Khan,12/10/2019,2020-05-30,False,1
 34,anuradha,k,reddy,2020-05-30,2020-05-30,False,2
-34,anuradha,k,reddy,2020-05-30,till date,True,3
+34,anuradha,k,reddy,2020-05-30,2020-05-30,False,3
+34,anuradha,k,reddy,2020-05-30,till date,True,4
 35,,,,3/31/2020,till date,True,1
 36,Barth,Stigell,Matzel,9/4/2019,till date,True,1
 37,Lemar,Linde,Wastling,1/20/2020,till date,True,1
@@ -69,9 +70,9 @@ stud_id,first_name,middle_name,last_name,valid_from,valid_to,latest,version_no
 64,Lemmy,Rennolds,Asee,9/6/2019,till date,True,1
 65,,,,12/20/2019,till date,True,1
 66,,,,9/25/2019,till date,True,1
-67,,,,5/20/2020,2020-05-30,False,1
-67,arnav,M,kurra,2020-05-30,2020-05-30,False,2
 67,arnav,M,kurra,2020-05-30,till date,True,3
+67,arnav,M,kurra,2020-05-30,2020-05-30,False,2
+67,,,,5/20/2020,2020-05-30,False,1
 68,Ninnette,Kingh,Braghini,9/19/2019,till date,True,1
 69,,,,11/14/2019,till date,True,1
 70,Cristina,Fludder,Bengall,12/3/2019,till date,True,1
@@ -1005,3 +1006,5 @@ stud_id,first_name,middle_name,last_name,valid_from,valid_to,latest,version_no
 998,Bobby,Pitford,Cragoe,9/15/2019,till date,True,1
 999,Dode,O'Regan,Ashness,12/17/2019,till date,True,1
 1000,Merna,Pengilly,Gadney,11/24/2019,till date,True,1
+1008,pankaj,,kv,2020-05-30,till date,True,1
+1009,arnav,,ch,2020-05-30,till date,True,1
