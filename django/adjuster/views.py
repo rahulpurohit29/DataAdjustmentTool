@@ -21,13 +21,15 @@ from django.core.files.storage import FileSystemStorage
 import hdfs3
 from hdfs3 import HDFileSystem
 from datetime import date
-from azure.storage.blob import BlobServiceClient
+#from azure.storage.blob import BlobServiceClient
 import json
 import csv
 spark=SparkSession.builder.appName('adjuster').getOrCreate()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_dir=os.path.join(BASE_DIR,"data")
+updated_ids =[]
+
 
 def update_csv(request):
     # sc = SparkContext(conf=conf)
@@ -44,10 +46,10 @@ def update_csv(request):
         csv_files=request.FILES['csv_file']
         fs = FileSystemStorage(location=data_dir) #defaults to   MEDIA_ROOT
         filename = fs.save(csv_files.name, csv_files)
-        file_url=data_dir+'/'+fs.url(filename)
+        file_url=data_dir+'\\'+fs.url(filename)
         print(file_url)
         data=update_entries(latest_file,file_url)
-        data.toPandas().to_csv(data_dir+'/'+str(date.today())+".csv",header=True,index=False)
+        data.toPandas().to_csv(data_dir+'\\'+str(date.today())+".csv",header=True,index=False)
         #data.coalesce(1).write.option('header','true').option("sep",",").mode("overwrite").csv('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'.csv')
         # put = subprocess.Popen(["hadoop", "fs", "-put",file_url,'hdfs://hadoop1.example.com:9000'], stdin=PIPE, bufsize=-1)
         # put.communicate()
@@ -92,10 +94,10 @@ def add_csv(request):
         csv_files=request.FILES['csv_file']
         fs = FileSystemStorage(location=data_dir) #defaults to   MEDIA_ROOT
         filename = fs.save(csv_files.name, csv_files)
-        file_url=data_dir+'/'+fs.url(filename)
+        file_url=data_dir+'\\'+fs.url(filename)
         print(file_url)
         data=add_entries(latest_file,file_url)
-        data.toPandas().to_csv(data_dir+'/'+str(date.today())+".csv",header=True,index=False)
+        data.toPandas().to_csv(data_dir+'\\'+str(date.today())+".csv",header=True,index=False)
         #data.coalesce(1).write.option('header','true').option("sep",",").mode("overwrite").csv('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'.csv')
         # put = subprocess.Popen(["hadoop", "fs", "-put",file_url,'hdfs://hadoop1.example.com:9000'], stdin=PIPE, bufsize=-1)
         # put.communicate()
@@ -124,12 +126,13 @@ def download_csv(request):
     # # getting data from hdfs
     # details = data.objects.all()
     # # Create the HttpResponse object with the appropriate CSV header.
-    fs=open('data.csv')
-    csvfile=csv.DictReader(fs)
+    list_of_files = glob.glob(data_dir+'\*') # * means all if need specific format then *.csv
+    latest_file = max(list_of_files, key=os.path.getctime)
+    df=spark.read.csv(latest_file,infderSchema=True,header=True)
+    df.createOrReplaceTempView('updated')
     data={}
-    for record in csvfile:
-        id=record['stud_id']  #Please look a way in which we can get key from the first element in csv file
-        data[id]=record
+    for id in updated_ids:
+        data[id]=spark.sql(f"SELECT * FROM updated WHERE stud_id={sid} and latest=true").collect()[0]
     return JsonResponse(data,status=200)
 
 def add_entries(data,add_file):
@@ -173,11 +176,11 @@ def del_entries(data,ids):
     return data
 
 def update_entries(data,update):
+    global updated_ids=[]
     data=spark.read.csv(data,inferSchema=True,header=True)
     schema=data.schema
     data.createOrReplaceTempView('table')
     update=spark.read.csv(update,inferSchema=True,header=True)
-    ids=[]
     if "stud_id" in update.columns and "first_name" in update.columns and "middle_name" in update.columns and "last_name" in update.columns:
         update=update.collect()
         for i in range(0,len(update)):
@@ -185,7 +188,7 @@ def update_entries(data,update):
             new_rows=[]
             update_dict=update[i].asDict()
             sid=update_dict['stud_id']
-            ids.append(sid)
+            updated_ids.append(sid)
             results=spark.sql(f'select * from table where stud_id={sid} and latest=True')
             #results.show()
             if len(results.collect())>0:
