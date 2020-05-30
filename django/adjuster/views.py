@@ -133,7 +133,7 @@ def download_csv(request):
     df.createOrReplaceTempView('updated')
     data={}
     for id in updated_ids:
-        data[id]=spark.sql(f"SELECT * FROM updated WHERE stud_id={sid} and latest=true").collect()[0].asDict()
+        data[id]=spark.sql(f"SELECT * FROM updated WHERE stud_id={id} and latest=true").collect()[0].asDict()
     return JsonResponse(data,status=200)
 
 def add_entries(data,add_file):

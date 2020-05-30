@@ -29,6 +29,8 @@ export class AppComponent {
     }
     else
     {
+      this.jsondata=null;
+      this.ids=[];
       let formdata=new FormData();
       formdata.append('csv_file',this.file); //Creating the body of the POST request to be submitted
       this.httpRequest.post('http://127.0.0.1:8000/update_csv',formdata).subscribe(
@@ -43,6 +45,11 @@ export class AppComponent {
       ); // Sending the POST request to the URL with the file and it's Details
     }
   }
+
+  Reset(){
+    this.jsondata=null;
+    this.ids=[];
+  }
   onAdd(){
     if(this.file===null)
     {
@@ -51,6 +58,8 @@ export class AppComponent {
     }
     else
     {
+      this.jsondata=null;
+      this.ids=[];
       let formdata=new FormData();
       formdata.append('csv_file',this.file); //Creating the body of the POST request to be submitted
       this.httpRequest.post('http://127.0.0.1:8000/add_csv',formdata).subscribe(
@@ -70,6 +79,7 @@ export class AppComponent {
       response=>{
           console.log("Success");
           this.jsondata=response;
+          console.log(this.jsondata);
           console.log(typeof(this.jsondata));
           for(let key in this.jsondata)
           {

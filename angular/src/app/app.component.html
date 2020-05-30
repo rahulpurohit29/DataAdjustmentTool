@@ -11,14 +11,14 @@
       Add
     </button>
     <button id="download" type="button" (click)="Download()">
-      Download
+      Show Updates
     </button>
-    <button id="Reset" type="reset">
+    <button id="Reset" type="reset" (click)="Reset()">
       Reset
     </button>
   </form>
   <table *ngIf="jsondata">
-    <caption>The Updated Records (Only top 50)</caption>
+    <caption>The Updated Records</caption>
     <thead>
       <tr>
         <th>Student-ID</th>
