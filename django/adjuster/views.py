@@ -176,7 +176,8 @@ def del_entries(data,ids):
     return data
 
 def update_entries(data,update):
-    global updated_ids=[]
+    global updated_ids
+    updated_ids=[]
     data=spark.read.csv(data,inferSchema=True,header=True)
     schema=data.schema
     data.createOrReplaceTempView('table')
