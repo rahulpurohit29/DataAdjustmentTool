@@ -8,6 +8,7 @@ import { HttpClient} from '@angular/common/http';
 export class AppComponent {
   file: File = null;
   jsondata=null;
+  ids=[];
   constructor(private httpRequest: HttpClient){}  //Constructor to be used to send the HTTTP Request
   FileSelect(event){
     if(event.target.files[0].name.substr( event.target.files[0].name.lastIndexOf('.') + 1)==="csv"){
@@ -73,7 +74,8 @@ export class AppComponent {
           for(let key in this.jsondata)
           {
             if(this.jsondata.hasOwnProperty(key)){
-              console.log(this.jsondata[key].first_name);
+              console.log(this.jsondata[key].stud_id);
+              this.ids.push(this.jsondata[key].stud_id)
             }
           }
       },

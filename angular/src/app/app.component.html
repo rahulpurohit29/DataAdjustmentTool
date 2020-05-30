@@ -17,17 +17,24 @@
       Reset
     </button>
   </form>
+  <table *ngIf="jsondata">
+    <caption>The Updated Records (Only top 50)</caption>
+    <thead>
+      <tr>
+        <th>Student-ID</th>
+        <th>First Name</th>
+        <th>Middle Name</th>
+        <th>Last Name</th>
+      </tr>
+      
+    </thead>
+    <tbody>
+      <tr *ngFor="let record of ids;let i=index">
+        <td>{{jsondata[record].stud_id}}</td>
+        <td>{{jsondata[record].first_name}}</td>
+        <td>{{jsondata[record].middle_name}}</td>
+        <td>{{jsondata[record].last_name}}</td>
+      </tr>
+    </tbody>
+  </table>  
 </div>
-<table *ngIf="jsondata">
-  <thead>
-    <tr>
-      <th>Student-ID</th>
-    </tr>
-    
-  </thead>
-  <tbody>
-    <tr *ngFor="let record of jsondata|keyvalue">
-      <td>{{record.stud_id}}</td>
-    </tr>
-  </tbody>
-</table>
