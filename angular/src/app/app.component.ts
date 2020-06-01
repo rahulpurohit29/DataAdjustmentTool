@@ -94,5 +94,7 @@ export class AppComponent {
         alert("Unable to get data from the Server.");
       }
     );
+    this.jsondata=null;
+    this.ids=[];
   }
 }
