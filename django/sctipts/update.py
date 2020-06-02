@@ -1,19 +1,30 @@
-def update_entries(data,update):
-    global updated_ids
+from pyspark import SparkContext, SparkConf, HiveContext
+from pyspark.sql import SparkSession
+from datetime import date
+# import findspark
+# findspark.init("/hadoop/spark")
+import pyspark
+if __name__ == "__main__":
+    #spark=SparkSession.builder.enableHiveSupport().appName('adjuster').getOrCreate()
+    spark=SparkSession.builder.appName('adjuster').getOrCreate()
+    #conf = SparkConf().setAppName("adjuster")
+    #sc = SparkContext(conf=conf)
+    #sqlContext=HiveContext(sc)
+    update='update.csv'
     updated_ids=[]
     data=spark.read.csv(data,inferSchema=True,header=True)
     schema=data.schema
-    data.createOrReplaceTempView('table')
+    #data.createOrReplaceTempView('table')
     update=spark.read.csv(update,inferSchema=True,header=True)
     if "stud_id" in update.columns and "first_name" in update.columns and "middle_name" in update.columns and "last_name" in update.columns:
         update=update.collect()
         for i in range(0,len(update)):
-            data.createOrReplaceTempView('table')
+            #data.createOrReplaceTempView('table')
             new_rows=[]
             update_dict=update[i].asDict()
             sid=update_dict['stud_id']
             updated_ids.append(sid)
-            results=spark.sql(f'select * from table where stud_id={sid} and latest=True')
+            results=data.filter(data.stud_id==sid).filter(data.latest=="True")
             #results.show()
             if len(results.collect())>0:
                 old_dict=results.collect()[0].asDict()
@@ -39,11 +50,5 @@ def update_entries(data,update):
                     newRow = spark.createDataFrame(new_rows,schema)
                     #newRow.show()
                     data = data.union(newRow)
-    data.createOrReplaceTempView('table')
-    data=spark.sql("SELECT * FROM table ORDER BY stud_id")
-    # print(ids)
-    # for id in ids:
-    #     results=spark.sql(f'SELECT * FROM table WHERE stud_id={id}')
-    #     results.show()
-        #data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'_output.csv')
-    return data
+    #data.toPandas().to_csv("/home/hadoop/data/"+str(date.today())+".csv",header=True,index=False)
+    data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('upated'+str(date.today())+'_output.csv')

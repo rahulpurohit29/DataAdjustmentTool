@@ -7,7 +7,6 @@ import os
 import glob
 from adjuster import models
 from subprocess import Popen, PIPE
-from hdfs3 import HDFileSystem
 from pyspark import SparkContext, SparkConf
 from adjuster.forms import StudentForm
 import findspark
@@ -18,48 +17,56 @@ import subprocess
 from pyspark.sql import SparkSession
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-import hdfs3
-from hdfs3 import HDFileSystem
 from datetime import date
-#from pyspark.sql.functions import groupBy,count
 import json
 import csv
-spark=SparkSession.builder.appName('adjuster').getOrCreate()
+import paramiko
 
+ssh=paramiko.SSHClient()
+spark=SparkSession.builder.appName('adjuster').getOrCreate()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_dir=os.path.join(BASE_DIR,"data")
 updated_ids =[]
 
-
 def update_csv(request):
-    # sc = SparkContext(conf=conf)
-
+    global latest_file
     if "GET" == request.method:
         return HttpResponse({'message':"Invalid request."},status=500)
 
     #if not GET, then proceed
     try:
         # file_data = csv_file.read().decode("utf-8")
-        list_of_files = glob.glob(data_dir+'\*') # * means all if need specific format then *.csv
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect('192.168.10.51', username='hadoop', password='hadoop')
+        ftp_client=ssh.open_sftp()
+        ftp_client.chdir('/home/hadoop/data')
+        latest=0
+        for file_att in ftp_client.listdir_attr():
+            if file_att.st_mtime>latest:
+                latest=file_att.st_mtime
+                latest_file=file_att.filename
+        ftp_client.get('/home/hadoop/data/'+latest_file,data_dir+"\\"+"latest.csv")
+        list_of_files = glob.glob(data_dir+'\*')
         latest_file = max(list_of_files, key=os.path.getctime)
         print(latest_file)
+
         csv_files=request.FILES['csv_file']
-        fs = FileSystemStorage(location=data_dir) #defaults to   MEDIA_ROOT
+        fs = FileSystemStorage(location=data_dir)
         filename = fs.save(csv_files.name, csv_files)
         file_url=data_dir+'\\'+fs.url(filename)
         print(file_url)
+
         data=update_entries(latest_file,file_url)
-        data.toPandas().to_csv(data_dir+'\\'+str(date.today())+".csv",header=True,index=False)
-        #data.coalesce(1).write.option('header','true').option("sep",",").mode("overwrite").csv('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'.csv')
-        # put = subprocess.Popen(["hadoop", "fs", "-put",file_url,'hdfs://hadoop1.example.com:9000'], stdin=PIPE, bufsize=-1)
-        # put.communicate()
-        # hdfs=HDFileSystem(host='hdfs://hadoop1.example.com',port=9000)
-        # print(hdfs)
-            # handle_uploaded_file(request.FILES['csv_file'])
-        # data=spark.read.csv(csv_files,inferSchema=True,header=True)
-        # data.show()
+        data_filepath=data_dir+'\\'+str(date.today())+".csv"
+        data.toPandas().to_csv(data_filepath,header=True,index=False)
+
+        ftp_client.put(data_filepath,'/home/hadoop/data/'+str(date.today())+".csv")
+        ftp_client.close()
+
         print("file read")
         os.remove(file_url)
+        os.remove(data_filepath)
+        os.remove(latest_file)
         return JsonResponse({'message':'File uploaded successfully'},status=200)
         print("test 1")
         return JsonResponse({'message':'File uploaded is not a '},status=415)
@@ -87,8 +94,18 @@ def add_csv(request):
 
     #if not GET, then proceed
     try:
-        # file_data = csv_file.read().decode("utf-8")
-        list_of_files = glob.glob(data_dir+'\*') # * means all if need specific format then *.csv
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect('192.168.10.51', username='hadoop', password='hadoop')
+        ftp_client=ssh.open_sftp()
+        ftp_client.chdir('/home/hadoop/data')
+        latest=0
+        for file_att in ftp_client.listdir_attr():
+            if file_att.st_mtime>latest:
+                latest=file_att.st_mtime
+                latest_file=file_att.filename
+        print(latest_file)
+        ftp_client.get('/home/hadoop/data/'+latest_file,data_dir+"\\"+"latest.csv")
+        list_of_files = glob.glob(data_dir+'\*')
         latest_file = max(list_of_files, key=os.path.getctime)
         print(latest_file)
         csv_files=request.FILES['csv_file']
@@ -97,7 +114,10 @@ def add_csv(request):
         file_url=data_dir+'\\'+fs.url(filename)
         print(file_url)
         data=add_entries(latest_file,file_url)
-        data.toPandas().to_csv(data_dir+'\\'+str(date.today())+".csv",header=True,index=False)
+        data_filepath=data_dir+'\\'+str(date.today())+".csv"
+        data.toPandas().to_csv(data_filepath,header=True,index=False)
+        ftp_client.put(data_filepath,'/home/hadoop/data/'+str(date.today())+".csv")
+        ftp_client.close()
         #data.coalesce(1).write.option('header','true').option("sep",",").mode("overwrite").csv('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'.csv')
         # put = subprocess.Popen(["hadoop", "fs", "-put",file_url,'hdfs://hadoop1.example.com:9000'], stdin=PIPE, bufsize=-1)
         # put.communicate()
@@ -108,6 +128,8 @@ def add_csv(request):
         # data.show()
         print("file read")
         os.remove(file_url)
+        os.remove(data_filepath)
+        os.remove(latest_file)
         return JsonResponse({'message':'File uploaded successfully'},status=200)
         print("test 1")
         return JsonResponse({'message':'File uploaded is not a '},status=415)
@@ -121,12 +143,18 @@ def add_csv(request):
 
 
 def download_csv(request):
-    # conf = SparkConf().setAppName("adjuster").setMaster("http://localhost:9000")
-    # sc = SparkContext(conf=conf)
-    # # getting data from hdfs
-    # details = data.objects.all()
-    # # Create the HttpResponse object with the appropriate CSV header.
-    list_of_files = glob.glob(data_dir+'\*') # * means all if need specific format then *.csv
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('192.168.10.51', username='hadoop', password='hadoop')
+    ftp_client=ssh.open_sftp()
+    ftp_client.chdir('/home/hadoop/data')
+    latest=0
+    for file_att in ftp_client.listdir_attr():
+        if file_att.st_mtime>latest:
+            latest=file_att.st_mtime
+            latest_file=file_att.filename
+    print(latest_file)
+    ftp_client.get('/home/hadoop/data/'+latest_file,data_dir+"\\"+"latest.csv")
+    list_of_files = glob.glob(data_dir+'\*')
     latest_file = max(list_of_files, key=os.path.getctime)
     print(latest_file)
     df=spark.read.csv(latest_file,inferSchema=True,header=True)

@@ -998,9 +998,7 @@ stud_id,first_name,middle_name,last_name,valid_from,valid_to,latest,version_no
 903,,,,4/20/2020,till date,True,1
 911,Julienne,Kasher,Frankcombe,5/2/2020,till date,True,1
 972,Rodrigo,Goligher,Langman,10/19/2019,till date,True,1
-34,Daile,Epton,Khan,12/10/2019,2020-06-01,False,1
-34,anuradha,k,reddy,2020-06-01,till date,True,2
-1002,pankaj,,kv,2020-06-01,till date,True,1
-1003,arnav,,ch,2020-06-01,till date,True,1
-1004,pankaj,,kv,2020-06-01,till date,True,1
-1005,arnav,,ch,2020-06-01,till date,True,1
+34,Daile,Epton,Khan,12/10/2019,2020-06-02,False,1
+34,anuradha,k,reddy,2020-06-02,till date,True,2
+1002,pankaj,,kv,2020-06-02,till date,True,1
+1003,arnav,,ch,2020-06-02,till date,True,1
