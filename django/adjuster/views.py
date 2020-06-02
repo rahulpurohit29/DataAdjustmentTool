@@ -5,15 +5,9 @@ from django.contrib import messages
 import logging
 import os
 import glob
-from adjuster import models
-from subprocess import Popen, PIPE
-from pyspark import SparkContext, SparkConf
-from adjuster.forms import StudentForm
 import findspark
 findspark.init("C:\\spark-2.4.5-bin-hadoop2.7")
 import pyspark
-import tempfile
-import subprocess
 from pyspark.sql import SparkSession
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -23,6 +17,8 @@ import csv
 import paramiko
 
 ssh=paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect('192.168.10.51', username='hadoop', password='hadoop')
 spark=SparkSession.builder.appName('adjuster').getOrCreate()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 data_dir=os.path.join(BASE_DIR,"data")
@@ -36,15 +32,8 @@ def update_csv(request):
     #if not GET, then proceed
     try:
         # file_data = csv_file.read().decode("utf-8")
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect('192.168.10.51', username='hadoop', password='hadoop')
         ftp_client=ssh.open_sftp()
-        ftp_client.chdir('/home/hadoop/data')
-        latest=0
-        for file_att in ftp_client.listdir_attr():
-            if file_att.st_mtime>latest:
-                latest=file_att.st_mtime
-                latest_file=file_att.filename
+        latest_file=get_latest_file()
         ftp_client.get('/home/hadoop/data/'+latest_file,data_dir+"\\"+"latest.csv")
         list_of_files = glob.glob(data_dir+'\*')
         latest_file = max(list_of_files, key=os.path.getctime)
@@ -94,16 +83,8 @@ def add_csv(request):
 
     #if not GET, then proceed
     try:
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect('192.168.10.51', username='hadoop', password='hadoop')
         ftp_client=ssh.open_sftp()
-        ftp_client.chdir('/home/hadoop/data')
-        latest=0
-        for file_att in ftp_client.listdir_attr():
-            if file_att.st_mtime>latest:
-                latest=file_att.st_mtime
-                latest_file=file_att.filename
-        print(latest_file)
+        latest_file=get_latest_file()
         ftp_client.get('/home/hadoop/data/'+latest_file,data_dir+"\\"+"latest.csv")
         list_of_files = glob.glob(data_dir+'\*')
         latest_file = max(list_of_files, key=os.path.getctime)
@@ -143,27 +124,18 @@ def add_csv(request):
 
 
 def download_csv(request):
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('192.168.10.51', username='hadoop', password='hadoop')
     ftp_client=ssh.open_sftp()
-    ftp_client.chdir('/home/hadoop/data')
-    latest=0
-    for file_att in ftp_client.listdir_attr():
-        if file_att.st_mtime>latest:
-            latest=file_att.st_mtime
-            latest_file=file_att.filename
-    print(latest_file)
+    latest_file=get_latest_file()
     ftp_client.get('/home/hadoop/data/'+latest_file,data_dir+"\\"+"latest.csv")
     list_of_files = glob.glob(data_dir+'\*')
     latest_file = max(list_of_files, key=os.path.getctime)
     print(latest_file)
     df=spark.read.csv(latest_file,inferSchema=True,header=True)
-    df.createOrReplaceTempView('updated')
     data={}
     print(updated_ids)
     for id in updated_ids:
-        #data[id]=spark.sql(f"SELECT * FROM updated WHERE stud_id={id} and latest=true").collect()[0].asDict()
         data[id]=df.filter(f"stud_id={id}").filter("latest=true").collect()[0].asDict()
+    os.remove(data_dir+"\\"+"latest.csv")
     return JsonResponse(data,status=200)
 
 def add_entries(data,add_file):
@@ -172,8 +144,6 @@ def add_entries(data,add_file):
     new_rows=[]
     data=spark.read.csv(data,inferSchema=True,header=True)
     schema=data.schema
-    #data.createOrReplaceTempView('table')
-    #results=spark.sql('SELECT count(stud_id) FROM table')
     results=data.agg({'stud_id':'count'})
     next_id=results.collect()[0].asDict()["count(stud_id)"]+1
     add_file=spark.read.csv(add_file,inferSchema=True,header=True)
@@ -195,18 +165,6 @@ def add_entries(data,add_file):
         if len(new_rows)>0:
             newRow = spark.createDataFrame(new_rows,schema)
             data = data.union(newRow)
-
-    # print(ids)
-    # for id in ids:
-    #     results=spark.sql(f'SELECT * FROM table WHERE stud_id={id}')
-    #     results.show()
-        #data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'_output.csv')
-    return data
-
-def del_entries(data,ids):
-    data=spark.read.csv(data,inferSchema=True,header=True)
-    for id in ids:
-        data=data.filter(f"stud_id!={id}")
     return data
 
 def update_entries(data,update):
@@ -214,18 +172,15 @@ def update_entries(data,update):
     updated_ids=[]
     data=spark.read.csv(data,inferSchema=True,header=True)
     schema=data.schema
-    #data.createOrReplaceTempView('table')
     update=spark.read.csv(update,inferSchema=True,header=True)
     if "stud_id" in update.columns and "first_name" in update.columns and "middle_name" in update.columns and "last_name" in update.columns:
         update=update.collect()
         for i in range(0,len(update)):
-            #data.createOrReplaceTempView('table')
             new_rows=[]
             update_dict=update[i].asDict()
             sid=update_dict['stud_id']
             updated_ids.append(sid)
             results=data.filter(f"stud_id={sid}").filter("latest=true")
-            #results.show()
             if len(results.collect())>0:
                 old_dict=results.collect()[0].asDict()
                 old_first_name=old_dict['first_name']
@@ -248,12 +203,16 @@ def update_entries(data,update):
                 data=data.union(results).subtract(data.intersect(results))
                 if len(new_rows)>0:
                     newRow = spark.createDataFrame(new_rows,schema)
-                    #newRow.show()
                     data = data.union(newRow)
-    #data.createOrReplaceTempView('table')
-    # print(ids)
-    # for id in ids:
-    #     results=spark.sql(f'SELECT * FROM table WHERE stud_id={id}')
-    #     results.show()
-        #data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('C:\\Users\\Administrator\\Desktop\\DataAdjustmentTool\\django\\data\\'+str(date.today())+'_output.csv')
     return data
+
+
+def get_latest_file():
+    ftp_client=ssh.open_sftp()
+    ftp_client.chdir('/home/hadoop/data')
+    latest=0
+    for file_att in ftp_client.listdir_attr():
+        if file_att.st_mtime>latest:
+            latest=file_att.st_mtime
+            latest_file=file_att.filename
+    return latest_file
