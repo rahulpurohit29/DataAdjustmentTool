@@ -1,4 +1,4 @@
-from pyspark import SparkContext, SparkConf, HiveContext
+#from pyspark import SparkContext, SparkConf, HiveContext
 from pyspark.sql import SparkSession
 from datetime import date
 # import findspark
@@ -10,7 +10,8 @@ if __name__ == "__main__":
     #conf = SparkConf().setAppName("adjuster")
     #sc = SparkContext(conf=conf)
     #sqlContext=HiveContext(sc)
-    update='update.csv'
+    update='/home/hadoop/data/update.csv'
+    data='/home/hadoop/data/final_data.csv'
     updated_ids=[]
     data=spark.read.csv(data,inferSchema=True,header=True)
     schema=data.schema
@@ -50,5 +51,6 @@ if __name__ == "__main__":
                     newRow = spark.createDataFrame(new_rows,schema)
                     #newRow.show()
                     data = data.union(newRow)
-    #data.toPandas().to_csv("/home/hadoop/data/"+str(date.today())+".csv",header=True,index=False)
-    data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('upated'+str(date.today())+'_output.csv')
+    #data.toPandas().to_csv("final_data.csv",header=True,index=False)
+    #data.write.format('csv').option('header',True).mode('overwrite').option('sep',',').save('/home/hadoop/data/final_data.csv')
+    data.coalesce(1).write.option('header',True).mode('overwrite').csv('/home/hadoop/data/final_data1')

@@ -36,7 +36,7 @@ export class AppComponent {
       this.httpRequest.post('http://127.0.0.1:8000/update_csv',formdata).subscribe(
         response=>{
           console.log("Success");
-          alert("Successfully Updated!");
+          alert(response['message']);
         },
         err=>{
           console.log("Error");
@@ -65,7 +65,7 @@ export class AppComponent {
       this.httpRequest.post('http://127.0.0.1:8000/add_csv',formdata).subscribe(
         response=>{
           console.log("Success");
-          alert("Successfully Added!");
+          alert(response['message']);
         },
         err=>{
           console.log("Error");
